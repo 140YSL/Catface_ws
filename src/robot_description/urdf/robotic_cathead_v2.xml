@@ -1,0 +1,111 @@
+<mujoco model="robotic_cathead_v2">
+  <compiler angle="radian"/>
+
+  <asset>
+    <mesh name="base_link" content_type="model/stl" file="../meshes/v2/base_link.STL"/>
+    <mesh name="neck_pitch" content_type="model/stl" file="../meshes/v2/neck_pitch.STL"/>
+    <mesh name="neck_yaw" content_type="model/stl" file="../meshes/v2/neck_yaw.STL"/>
+    <mesh name="Head" content_type="model/stl" file="../meshes/v2/Head.STL"/>
+    <mesh name="Jaw" content_type="model/stl" file="../meshes/v2/Jaw.STL"/>
+    <mesh name="left_upper_palate" content_type="model/stl" file="../meshes/v2/left_upper_palate.STL"/>
+    <mesh name="right_upper_palate" content_type="model/stl" file="../meshes/v2/right_upper_palate.STL"/>
+    <mesh name="left_eye_bottom_skin" content_type="model/stl" file="../meshes/v2/left_eye_bottom_skin.STL"/>
+    <mesh name="left_eye_upper_skin" content_type="model/stl" file="../meshes/v2/left_eye_upper_skin.STL"/>
+    <mesh name="right_eye_bottom_skin" content_type="model/stl" file="../meshes/v2/right_eye_bottom_skin.STL"/>
+    <mesh name="right_eye_upper_skin" content_type="model/stl" file="../meshes/v2/right_eye_upper_skin.STL"/>
+    <mesh name="left_ear_rotate" content_type="model/stl" file="../meshes/v2/left_ear_rotate.STL"/>
+    <mesh name="left_ear" content_type="model/stl" file="../meshes/v2/left_ear.STL"/>
+    <mesh name="right_ear_rotate" content_type="model/stl" file="../meshes/v2/right_ear_rotate.STL"/>
+    <mesh name="right_ear" content_type="model/stl" file="../meshes/v2/right_ear.STL"/>
+  </asset>
+
+  <worldbody>
+    <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="base_link" contype="0" conaffinity="0"/>
+    <body name="neck_pitch" pos="0.0075 0 0.039" quat="-2.59734e-06 0.707105 2.59735e-06 0.707108">
+      <inertial pos="0.0128139 -0.000667208 -0.00035023" quat="0.999997 0 0.00250261 0" mass="0.020126" diaginertia="3.19852e-06 2.52818e-06 1.7608e-06"/>
+      <joint name="neck_pitch" range="-1 1" actuatorfrcrange="-10 10" axis="1 0 0"/>
+      <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="neck_pitch"/>
+      <body name="neck_yaw" pos="0.015 0 -0.0075" quat="0.499998 0.5 0.500002 0.5">
+        <inertial pos="-0.000811635 -0.00534787 0.0323616" quat="0.999484 0.0321119 0 0" mass="0.0203871" diaginertia="2.87009e-06 2.83387e-06 2.21581e-06"/>
+        <joint name="neck_yaw" range="-1 1" actuatorfrcrange="-10 10" axis="1 0 0"/>
+        <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="neck_yaw"/>
+        <body name="Head" pos="-0.00081163 0.011 0.043727" quat="0.707105 0 0 -0.707108">
+          <inertial pos="0.0488913 1.08538e-05 0.000276579" quat="0.694241 0.697884 0.123438 -0.125504" mass="0.0486695" diaginertia="2.74224e-05 2.6075e-05 1.69888e-05"/>
+          <joint name="Head" range="-1 1" actuatorfrcrange="-10 10" axis="-1 0 0"/>
+          <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="Head"/>
+          <body name="Jaw" pos="0.05045 0.00081163 -0.023725" quat="0.707105 0 0 0.707108">
+            <inertial pos="-0.000281665 -0.0088685 -0.00705436" quat="-0.0935903 0.679828 0.0421151 0.726155" mass="0.00250081" diaginertia="3.98812e-07 2.36936e-07 2.07761e-07"/>
+            <joint name="Jaw" range="-1 0" actuatorfrcrange="-10 10" axis="-0.999975 0 -0.00700857"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="Jaw"/>
+          </body>
+          <body name="left_upper_palate" pos="0.0826 -0.0036208 -0.017026">
+            <inertial pos="-0.00121394 -0.00330082 -3.90272e-05" quat="0.702721 0.711198 0.0137471 0.0138664" mass="0.000176222" diaginertia="3.85207e-09 3.41671e-09 6.62063e-10"/>
+            <joint name="left_upper_palate" range="-0.4 0.4" actuatorfrcrange="-10 10" axis="-1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="left_upper_palate"/>
+          </body>
+          <body name="right_upper_palate" pos="0.0826 0.003879 -0.016973">
+            <inertial pos="-0.00100002 0.00429313 -2.1898e-05" quat="0.70898 0.705229 -1.36866e-06 -1.10142e-06" mass="0.000136077" diaginertia="3.07017e-09 2.66296e-09 4.97927e-10"/>
+            <joint name="right_upper_palate" range="-0.4 0.4" actuatorfrcrange="-10 10" axis="-1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="right_upper_palate"/>
+          </body>
+          <body name="left_eye_bottom_skin" pos="0.068835 -0.018654 0.008792" quat="0.767866 0.143483 -0.184743 0.596376">
+            <inertial pos="-8.81672e-07 0.000747045 -0.00883623" quat="0.0188783 0.706907 0.0188662 0.706802" mass="0.000693143" diaginertia="6.61196e-08 6.04715e-08 2.77267e-08"/>
+            <joint name="left_eye_bottom_skin" range="-0.8 0.5" actuatorfrcrange="-10 10" axis="1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="left_eye_bottom_skin"/>
+          </body>
+          <body name="left_eye_upper_skin" pos="0.068835 -0.018654 0.008792" quat="0.767866 0.143483 -0.184743 0.596376">
+            <inertial pos="-1.21356e-07 0.00240561 0.007318" quat="-0.0204013 0.706806 -0.0204001 0.706819" mass="0.000598967" diaginertia="4.7384e-08 4.36569e-08 2.14446e-08"/>
+            <joint name="left_eye_upper_skin" range="-0.3 1" actuatorfrcrange="-10 10" axis="1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="left_eye_upper_skin"/>
+          </body>
+          <body name="right_eye_bottom_skin" pos="0.068834 0.018538 0.0090585" quat="0.768595 -0.139583 -0.179406 -0.59799">
+            <inertial pos="-1.20461e-07 -0.000980374 -0.00764061" quat="-0.0873522 0.701697 -0.0873534 0.701684" mass="0.000598967" diaginertia="4.73841e-08 4.36569e-08 2.14446e-08"/>
+            <joint name="right_eye_bottom_skin" range="-0.5 0.8" actuatorfrcrange="-10 10" axis="1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="right_eye_bottom_skin"/>
+          </body>
+          <body name="right_eye_upper_skin" pos="0.068834 0.018538 0.0090585" quat="0.768595 -0.139583 -0.179406 -0.59799">
+            <inertial pos="-8.51869e-07 -0.00240226 0.00853612" quat="-0.048273 0.705407 -0.0482623 0.705508" mass="0.000693147" diaginertia="6.61198e-08 6.0472e-08 2.77269e-08"/>
+            <joint name="right_eye_upper_skin" range="-1 0.3" actuatorfrcrange="-10 10" axis="1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="right_eye_upper_skin"/>
+          </body>
+          <body name="left_ear_rotate" pos="0.028836 -0.023597 0.030845" quat="0.745792 0.109614 -0.612556 -0.237813">
+            <inertial pos="0.00757373 0.00255902 0.00307769" quat="0.60169 0.794455 -0.0324285 -0.0758853" mass="0.00399268" diaginertia="3.06335e-07 2.25543e-07 2.00638e-07"/>
+            <joint name="left_ear_rotate" range="-1 1" actuatorfrcrange="-10 10" axis="-1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="left_ear_rotate"/>
+            <body name="left_ear" pos="0.0085 0 0" quat="0.499998 -0.5 0.500002 -0.5">
+              <inertial pos="-0.000622505 -0.0124431 0.0224995" quat="0.685699 -0.0119371 0.00635187 0.72776" mass="0.00432885" diaginertia="2.19612e-06 1.5456e-06 1.1438e-06"/>
+              <joint name="left_ear" range="-1 1" actuatorfrcrange="-10 10" axis="1 0 0"/>
+              <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="left_ear" contype="0" conaffinity="0"/>
+            </body>
+          </body>
+          <body name="right_ear_rotate" pos="0.028836 0.023175 0.031173" quat="0.746545 -0.104388 -0.614207 0.233501">
+            <inertial pos="0.00757373 -0.00255902 0.00307769" quat="0.794455 0.60169 0.0758853 0.0324285" mass="0.00399268" diaginertia="3.06335e-07 2.25543e-07 2.00638e-07"/>
+            <joint name="right_ear_rotate" range="-1 1" actuatorfrcrange="-10 10" axis="-1 0 0"/>
+            <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="right_ear_rotate"/>
+            <body name="right_ear" pos="0.0085 0 0" quat="0.499998 0.5 0.500002 0.5">
+              <inertial pos="-0.000622497 0.0124431 0.0224995" quat="0.72776 0.00635359 -0.0119394 0.685698" mass="0.00432885" diaginertia="2.19612e-06 1.54559e-06 1.1438e-06"/>
+              <joint name="right_ear" range="-1 1" actuatorfrcrange="-10 10" axis="1 0 0"/>
+              <geom quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="right_ear" contype="0" conaffinity="0"/>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position name="neck_pitch" joint="neck_pitch"                        kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="neck_yaw" joint="neck_yaw"                            kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="Head" joint="Head"                                    kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="Jaw" joint="Jaw"                                      kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 0.0"    damping="0.4" armature="5e-5"/>
+    <position name="left_upper_palate"   joint="left_upper_palate"        kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.4 0.4"    damping="0.4" armature="5e-5"/>
+    <position name="right_upper_palate" joint="right_upper_palate"        kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.4 0.4"    damping="0.4" armature="5e-5"/>
+    <position name="left_eye_bottom_skin" joint="left_eye_bottom_skin"    kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.8 0.5"    damping="0.4" armature="5e-5"/>
+    <position name="left_eye_upper_skin" joint="left_eye_upper_skin"      kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.3 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="right_eye_bottom_skin" joint="right_eye_bottom_skin"  kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.5 0.8"    damping="0.4" armature="5e-5"/>
+    <position name="right_eye_upper_skin" joint="right_eye_upper_skin"    kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 0.3"    damping="0.4" armature="5e-5"/>
+    <position name="left_ear_rotate" joint="left_ear_rotate"              kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="left_ear" joint="left_ear"                            kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="right_ear_rotate" joint="right_ear_rotate"            kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="right_ear" joint="right_ear"                          kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+  </actuator>
+</mujoco>

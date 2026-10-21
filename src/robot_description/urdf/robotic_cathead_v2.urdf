@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-4-g7f85cfe  Build Version: 1.6.7995.38578
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="robotic_cathead_v2">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="0.000234520382824898 -6.09248591656534E-17 0.0129112872355687"
+        rpy="0 0 0" />
+      <mass
+        value="0.0358938056516256" />
+      <inertia
+        ixx="1.18033301975897E-05"
+        ixy="1.59970747747596E-21"
+        ixz="-2.43826201674262E-10"
+        iyy="1.31102652934283E-05"
+        iyz="-3.69048082282653E-20"
+        izz="2.27333996455797E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="neck_pitch">
+    <inertial>
+      <origin
+        xyz="0.0128139463219508 -0.000667207619900293 -0.000350230193255411"
+        rpy="0 0 0" />
+      <mass
+        value="0.0201259796785391" />
+      <inertia
+        ixx="3.19848833783626E-06"
+        ixy="-2.67244125264574E-22"
+        ixz="-7.19603680264999E-09"
+        iyy="2.52817644126895E-06"
+        iyz="-2.09806269669023E-21"
+        izz="1.76083144331031E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/neck_pitch.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/neck_pitch.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="neck_pitch"
+    type="revolute">
+    <origin
+      xyz="0.0075 0 0.039"
+      rpy="3.1416 -1.5708 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="neck_pitch" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="neck_yaw">
+    <inertial>
+      <origin
+        xyz="-0.000811634839457488 -0.00534786566081591 0.0323615869077945"
+        rpy="0 0 0" />
+      <mass
+        value="0.0203871455344079" />
+      <inertia
+        ixx="2.8700896442293E-06"
+        ixy="1.94755786507795E-21"
+        ixz="-2.25656855841081E-21"
+        iyy="2.83132118609949E-06"
+        iyz="3.95919658611168E-08"
+        izz="2.21835214734615E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/neck_yaw.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/neck_yaw.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="neck_yaw"
+    type="revolute">
+    <origin
+      xyz="0.015 0 -0.0075"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="neck_pitch" />
+    <child
+      link="neck_yaw" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="Head">
+    <inertial>
+      <origin
+        xyz="0.0488912681013092 1.08538433328878E-05 0.000276579080942599"
+        rpy="0 0 0" />
+      <mass
+        value="0.0486694591626662" />
+      <inertia
+        ixx="2.72604433196559E-05"
+        ixy="-3.68621353173411E-08"
+        ixz="-4.3819997060583E-07"
+        iyy="1.69891497518687E-05"
+        iyz="-4.0481930052226E-08"
+        izz="2.62366038329185E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/Head.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/Head.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Head"
+    type="revolute">
+    <origin
+      xyz="-0.00081163 0.011 0.043727"
+      rpy="0 0 -1.5708" />
+    <parent
+      link="neck_yaw" />
+    <child
+      link="Head" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="Jaw">
+    <inertial>
+      <origin
+        xyz="-0.000281664527083702 -0.00886850040559854 -0.00705436022021119"
+        rpy="0 0 0" />
+      <mass
+        value="0.00250081018611671" />
+      <inertia
+        ixx="2.09495827450749E-07"
+        ixy="-4.64352307926357E-09"
+        ixz="-1.14286904013555E-08"
+        iyy="2.3690176087197E-07"
+        iyz="-1.30685337849183E-08"
+        izz="3.97110804963135E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/Jaw.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/Jaw.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Jaw"
+    type="revolute">
+    <origin
+      xyz="0.05045 0.00081163 -0.023725"
+      rpy="0 0 1.5708" />
+    <parent
+      link="Head" />
+    <child
+      link="Jaw" />
+    <axis
+      xyz="-0.99998 0 -0.0070086" />
+    <limit
+      lower="-1.0"
+      upper="0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="left_upper_palate">
+    <inertial>
+      <origin
+        xyz="-0.00121394150675413 -0.00330082426507895 -3.90271559772004E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.000176221898212205" />
+      <inertia
+        ixx="3.84720216315698E-09"
+        ixy="1.24447973906741E-10"
+        ixz="1.46402128522693E-12"
+        iyy="6.67321103257942E-10"
+        iyz="-3.29743565045381E-11"
+        izz="3.41631870354667E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_upper_palate.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_upper_palate.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_upper_palate"
+    type="revolute">
+    <origin
+      xyz="0.0826 -0.0036208 -0.017026"
+      rpy="0 0 0" />
+    <parent
+      link="Head" />
+    <child
+      link="left_upper_palate" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.4"
+      upper="0.4"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="right_upper_palate">
+    <inertial>
+      <origin
+        xyz="-0.00100001520134109 0.00429312844778602 -2.18980456701406E-05"
+        rpy="0 0 0" />
+      <mass
+        value="0.000136077024955264" />
+      <inertia
+        ixx="3.07016868574343E-09"
+        ixy="-8.98704674149773E-15"
+        ixz="1.97808631201849E-16"
+        iyy="4.97988402179106E-10"
+        iyz="1.14861675537094E-11"
+        izz="2.66289738457714E-09" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_upper_palate.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_upper_palate.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_upper_palate"
+    type="revolute">
+    <origin
+      xyz="0.0826 0.003879 -0.016973"
+      rpy="0 0 0" />
+    <parent
+      link="Head" />
+    <child
+      link="right_upper_palate" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-0.4"
+      upper="0.4"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="left_eye_bottom_skin">
+    <inertial>
+      <origin
+        xyz="-8.81672023396451E-07 0.000747044655037624 -0.00883623075164458"
+        rpy="0 0 0" />
+      <mass
+        value="0.000693142703565447" />
+      <inertia
+        ixx="2.77266897729191E-08"
+        ixy="7.33904594049436E-13"
+        ixz="5.68936170140738E-12"
+        iyy="6.04875367447931E-08"
+        iyz="3.00952177308456E-10"
+        izz="6.6103483771639E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_eye_bottom_skin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_eye_bottom_skin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_eye_bottom_skin"
+    type="revolute">
+    <origin
+      xyz="0.068835 -0.018654 0.008792"
+      rpy="0 -0.47221 1.3207" />
+    <parent
+      link="Head" />
+    <child
+      link="left_eye_bottom_skin" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.8"
+      upper="0.5"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="left_eye_upper_skin">
+    <inertial>
+      <origin
+        xyz="-1.21356281183871E-07 0.0024056058098792 0.00731800173066526"
+        rpy="0 0 0" />
+      <mass
+        value="0.000598966582559377" />
+      <inertia
+        ixx="2.14446077215527E-08"
+        ixy="-2.09008909208237E-14"
+        ixz="-5.08710291140975E-13"
+        iyy="4.36692578374628E-08"
+        iyz="-2.14618205489364E-10"
+        izz="4.73716432956453E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_eye_upper_skin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_eye_upper_skin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_eye_upper_skin"
+    type="revolute">
+    <origin
+      xyz="0.068835 -0.018654 0.008792"
+      rpy="0 -0.47221 1.3207" />
+    <parent
+      link="Head" />
+    <child
+      link="left_eye_upper_skin" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.3"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="right_eye_bottom_skin">
+    <inertial>
+      <origin
+        xyz="-1.20461260855187E-07 -0.000980373956093544 -0.0076406086603058"
+        rpy="0 0 0" />
+      <mass
+        value="0.000598966555985285" />
+      <inertia
+        ixx="2.14446186133389E-08"
+        ixy="-3.33798334854262E-14"
+        ixz="5.00358379113636E-13"
+        iyy="4.38809217675702E-08"
+        iyz="-8.85934737494401E-10"
+        izz="4.71600094962298E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_eye_bottom_skin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_eye_bottom_skin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_eye_bottom_skin"
+    type="revolute">
+    <origin
+      xyz="0.068834 0.018538 0.0090585"
+      rpy="0 -0.45863 -1.3224" />
+    <parent
+      link="Head" />
+    <child
+      link="right_eye_bottom_skin" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-0.5"
+      upper="0.8"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="right_eye_upper_skin">
+    <inertial>
+      <origin
+        xyz="-8.5186916354979E-07 -0.00240225681139258 0.00853612240419965"
+        rpy="0 0 0" />
+      <mass
+        value="0.000693147206000305" />
+      <inertia
+        ixx="2.77268574792773E-08"
+        ixy="-6.44702273534667E-14"
+        ixz="-5.5084533373328E-12"
+        iyy="6.0576734328598E-08"
+        iyz="-7.62089932309676E-10"
+        izz="6.60150656583693E-08" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_eye_upper_skin.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_eye_upper_skin.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_eye_upper_skin"
+    type="revolute">
+    <origin
+      xyz="0.068834 0.018538 0.0090585"
+      rpy="0 -0.45863 -1.3224" />
+    <parent
+      link="Head" />
+    <child
+      link="right_eye_upper_skin" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="0.3"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="left_ear_rotate">
+    <inertial>
+      <origin
+        xyz="0.00757372861463268 0.00255901841971672 0.00307769419838377"
+        rpy="0 0 0" />
+      <mass
+        value="0.00399267599766466" />
+      <inertia
+        ixx="3.03514860446406E-07"
+        ixy="-1.51640702436146E-08"
+        ixz="-7.54996104284108E-09"
+        iyy="2.04661990605028E-07"
+        iyz="-5.32247042894084E-09"
+        izz="2.24339427998261E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_ear_rotate.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_ear_rotate.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_ear_rotate"
+    type="revolute">
+    <origin
+      xyz="0.028836 -0.023597 0.030845"
+      rpy="1.1105 -1.0383 -1.2987" />
+    <parent
+      link="Head" />
+    <child
+      link="left_ear_rotate" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="left_ear">
+    <inertial>
+      <origin
+        xyz="-0.000622505379398564 -0.0124430601671525 0.0224994650142852"
+        rpy="0 0 0" />
+      <mass
+        value="0.00432884933202859" />
+      <inertia
+        ixx="1.54785932125057E-06"
+        ixy="-3.8437693491593E-08"
+        ixz="4.48685380772199E-09"
+        iyy="2.19312639606371E-06"
+        iyz="-2.72221120187765E-08"
+        izz="1.14454023817863E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_ear.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/left_ear.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_ear"
+    type="revolute">
+    <origin
+      xyz="0.0085 0 0"
+      rpy="-1.5708 0 -1.5708" />
+    <parent
+      link="left_ear_rotate" />
+    <child
+      link="left_ear" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="right_ear_rotate">
+    <inertial>
+      <origin
+        xyz="0.00757372888321453 -0.00255901866648994 0.00307769414652344"
+        rpy="0 0 0" />
+      <mass
+        value="0.00399267606928794" />
+      <inertia
+        ixx="3.03514853134281E-07"
+        ixy="1.51640728548874E-08"
+        ixz="-7.5499663239417E-09"
+        iyy="2.04661986775007E-07"
+        iyz="5.32247512101527E-09"
+        izz="2.2433942457583E-07" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_ear_rotate.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_ear_rotate.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ear_rotate"
+    type="revolute">
+    <origin
+      xyz="0.028836 0.023175 0.031173"
+      rpy="-1.1029 -1.0518 1.2921" />
+    <parent
+      link="Head" />
+    <child
+      link="right_ear_rotate" />
+    <axis
+      xyz="-1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="right_ear">
+    <inertial>
+      <origin
+        xyz="-0.00062249661125019 0.0124431239977121 0.0224994891385241"
+        rpy="0 0 0" />
+      <mass
+        value="0.00432884881276985" />
+      <inertia
+        ixx="1.54785009992891E-06"
+        ixy="3.8439495469593E-08"
+        ixz="4.4875411668349E-09"
+        iyy="2.19312257593482E-06"
+        iyz="2.72282589347445E-08"
+        izz="1.14453429483937E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_ear.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://robot_description/meshes/v2/right_ear.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_ear"
+    type="revolute">
+    <origin
+      xyz="0.0085 0 0"
+      rpy="1.5708 0 1.5708" />
+    <parent
+      link="right_ear_rotate" />
+    <child
+      link="right_ear" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1.0"
+      upper="1.0"
+      effort="10"
+      velocity="10" />
+  </joint>
+  
+</robot>

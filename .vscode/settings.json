@@ -1,0 +1,14 @@
+{
+    "cmake.sourceDirectory": "/home/ysl/Desktop/CatFace/Catface_ws/src/robot_description",
+    "files.exclude": {
+        "**/build": true,
+        "**/install": true,
+        "**/log": true
+    },
+    "search.exclude": {
+        "**/build": true,
+        "**/install": true,
+        "**/log": true
+    }
+
+}

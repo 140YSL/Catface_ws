@@ -48,7 +48,7 @@ class MuJoCoSimNode(Node):
         super().__init__("mujoco_sim_node")
 
         self.declare_parameter("joint_states_topic", "/joint_states")
-        self.declare_parameter("state_publish_rate_hz", 50.0)
+        self.declare_parameter("state_publish_rate_hz", 120.0)
         self.declare_parameter("ctrl_topic", "/mujoco_ctrl")
         self.joint_states_topic = str(
             self.get_parameter("joint_states_topic").value

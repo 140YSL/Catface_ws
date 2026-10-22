@@ -25,7 +25,7 @@ class MujocoBlenderBridge(Node):
         self.declare_parameter("joint_states_topic", "/joint_states")
         self.declare_parameter("udp_host", "127.0.0.1")
         self.declare_parameter("udp_port", 5005)
-        self.declare_parameter("send_rate_hz", 60.0)
+        self.declare_parameter("send_rate_hz", 120.0)
 
         topic = str(self.get_parameter("joint_states_topic").value)
         self.udp_host = str(self.get_parameter("udp_host").value)

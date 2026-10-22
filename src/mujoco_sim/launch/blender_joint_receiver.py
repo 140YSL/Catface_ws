@@ -25,6 +25,10 @@ import socket
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import JointState
+
 import numpy as np
 from mathutils import Vector, Euler, Matrix
 
@@ -33,7 +37,7 @@ URDF_PATH = Path(bpy.path.abspath("//../urdf/robotic_cathead_v2.urdf"))
 ARMATURE_OBJECT_NAME = "CatFace_Armature"
 UDP_HOST = "127.0.0.1"
 UDP_PORT = 5005
-TIMER_INTERVAL = 1.0 / 60.0
+TIMER_INTERVAL = 1.0 / 100.0
 DEADBAND = 1e-4          # rad，小于该值的变化视为噪声直接丢弃
 BONE_PREFIX = "link__"
 
@@ -55,6 +59,12 @@ _rest_rel_inv = {}           # link -> inv(parent.matrix_local^-1 @ bone.matrix_
 _pose_offset = {}            # link -> inv(T0_link) @ rest_bone_matrix
 _last_error = None
 
+node = None
+
+class BlenderRelay(Node):
+    def __init__(self):
+        super().__init__('blender_state_relay')
+        self.pub = self.create_publisher(JointState, '/joint_state_blender', 10)
 
 # ----------------------------- helpers -----------------------------
 def parse_xyz(text, default=(0.0, 0.0, 0.0)):
@@ -301,6 +311,7 @@ def apply_joint_positions():
         basis    = inv(rest_rel) @ local         # pure local, no depsgraph reads
     No view_layer.update() needed; skin refreshes on redraw.
     """
+    global node
     T = compute_link_transforms(_joint_positions)
     eye = np.eye(4, dtype=np.float64)
 
@@ -311,7 +322,15 @@ def apply_joint_positions():
         basis = _rest_rel_inv[link_name] @ (np.linalg.inv(Dp) @ D)
         pose_bone = _armature.pose.bones[f"{BONE_PREFIX}{link_name}"]
         pose_bone.matrix_basis = Matrix(basis.tolist())
+    
+    msg = JointState()
+    # 用 Blender 记录的时刻作为 header.stamp（墙钟）
+    msg.header.stamp = node.get_clock().now().to_msg()
+    msg.header.frame_id = "blender"
 
+    msg.name = list(_joint_positions.keys())
+    msg.position = list(_joint_positions.values())
+    node.pub.publish(msg)
 
 # ----------------------------- timer -----------------------------
 def timer_callback():
@@ -372,6 +391,8 @@ def stop_receiver():
 
 # ----------------------------- main -----------------------------
 if __name__ == "__main__":
+    rclpy.init()
+    node = BlenderRelay()
     try:
         setup()
         set_rendered_viewport()

@@ -93,19 +93,19 @@
     </body>
   </worldbody>
   <actuator>
-    <position name="neck_pitch" joint="neck_pitch"                        kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
-    <position name="neck_yaw" joint="neck_yaw"                            kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
-    <position name="Head" joint="Head"                                    kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
-    <position name="Jaw" joint="Jaw"                                      kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 0.0"    damping="0.4" armature="5e-5"/>
-    <position name="left_upper_palate"   joint="left_upper_palate"        kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.4 0.4"    damping="0.4" armature="5e-5"/>
-    <position name="right_upper_palate" joint="right_upper_palate"        kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.4 0.4"    damping="0.4" armature="5e-5"/>
-    <position name="left_eye_bottom_skin" joint="left_eye_bottom_skin"    kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.8 0.5"    damping="0.4" armature="5e-5"/>
-    <position name="left_eye_upper_skin" joint="left_eye_upper_skin"      kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.3 1.0"    damping="0.4" armature="5e-5"/>
-    <position name="right_eye_bottom_skin" joint="right_eye_bottom_skin"  kp="10" kv="0.1" ctrllimited="true" ctrlrange="-0.5 0.8"    damping="0.4" armature="5e-5"/>
-    <position name="right_eye_upper_skin" joint="right_eye_upper_skin"    kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 0.3"    damping="0.4" armature="5e-5"/>
-    <position name="left_ear_rotate" joint="left_ear_rotate"              kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
-    <position name="left_ear" joint="left_ear"                            kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
-    <position name="right_ear_rotate" joint="right_ear_rotate"            kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
-    <position name="right_ear" joint="right_ear"                          kp="10" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.4" armature="5e-5"/>
+    <position name="neck_pitch" joint="neck_pitch"                        kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.2" armature="5e-5"/>
+    <position name="neck_yaw" joint="neck_yaw"                            kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.2" armature="5e-5"/>
+    <position name="Head" joint="Head"                                    kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.2" armature="5e-5"/>
+    <position name="Jaw" joint="Jaw"                                      kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 0.0"    damping="0.2" armature="5e-5"/>
+    <position name="left_upper_palate"   joint="left_upper_palate"        kp="20" kv="0.1" ctrllimited="true" ctrlrange="-0.4 0.4"    damping="0.2" armature="5e-5"/>
+    <position name="right_upper_palate" joint="right_upper_palate"        kp="20" kv="0.1" ctrllimited="true" ctrlrange="-0.4 0.4"    damping="0.2" armature="5e-5"/>
+    <position name="left_eye_bottom_skin" joint="left_eye_bottom_skin"    kp="20" kv="0.1" ctrllimited="true" ctrlrange="-0.8 0.5"    damping="0.2" armature="5e-5"/>
+    <position name="left_eye_upper_skin" joint="left_eye_upper_skin"      kp="20" kv="0.1" ctrllimited="true" ctrlrange="-0.3 1.0"    damping="0.2" armature="5e-5"/>
+    <position name="right_eye_bottom_skin" joint="right_eye_bottom_skin"  kp="20" kv="0.1" ctrllimited="true" ctrlrange="-0.5 0.8"    damping="0.2" armature="5e-5"/>
+    <position name="right_eye_upper_skin" joint="right_eye_upper_skin"    kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 0.3"    damping="0.2" armature="5e-5"/>
+    <position name="left_ear_rotate" joint="left_ear_rotate"              kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.2" armature="5e-5"/>
+    <position name="left_ear" joint="left_ear"                            kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.2" armature="5e-5"/>
+    <position name="right_ear_rotate" joint="right_ear_rotate"            kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.2" armature="5e-5"/>
+    <position name="right_ear" joint="right_ear"                          kp="20" kv="0.1" ctrllimited="true" ctrlrange="-1.0 1.0"    damping="0.2" armature="5e-5"/>
   </actuator>
 </mujoco>

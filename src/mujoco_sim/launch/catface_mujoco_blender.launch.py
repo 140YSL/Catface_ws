@@ -20,32 +20,32 @@ def generate_launch_description():
     blender_executable = "blender"
 
     return LaunchDescription([
-        # 启动 Blender GUI（独立进程）
-        ExecuteProcess(
-            cmd=[blender_executable, blender_file, "--python", blender_receiver],
-            output="screen",
-            name="catface_blender",
-        ),
+        # # 启动 Blender GUI（独立进程）
+        # ExecuteProcess(
+        #     cmd=[blender_executable, blender_file, "--python", blender_receiver],
+        #     output="screen",
+        #     name="catface_blender",
+        # ),
 
-        # JointState → Blender 的 UDP 桥接
-        Node(
-            package="mujoco_sim",
-            executable="mujoco_blender_bridge",
-            name="mujoco_blender_bridge",
-            output="screen",
-            parameters=[{
-                "joint_states_topic": "/joint_states",
-                "udp_host": "127.0.0.1",
-                "udp_port": 5005,
-                "send_rate_hz": 60.0,
-            }],
-        ),
+        # # JointState → Blender 的 UDP 桥接
+        # Node(
+        #     package="mujoco_sim",
+        #     executable="mujoco_blender_bridge",
+        #     name="mujoco_blender_bridge",
+        #     output="log",
+        #     parameters=[{
+        #         "joint_states_topic": "/joint_states",
+        #         "udp_host": "127.0.0.1",
+        #         "udp_port": 5005,
+        #         "send_rate_hz": 60.0,
+        #     }],
+        # ),
 
         # 加载机器人到 MuJoCo
         Node(
             package="mujoco_sim",
             executable="load_robot2mujoco",
             name="load_robot2mujoco",
-            output="screen",
+            output="log",
         ),
     ])

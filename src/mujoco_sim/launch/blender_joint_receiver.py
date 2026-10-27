@@ -312,7 +312,11 @@ def apply_joint_positions():
     No view_layer.update() needed; skin refreshes on redraw.
     """
     global node
-    T = compute_link_transforms(_joint_positions)
+    # print("joint positions:", _joint_positions)
+    temp_joint_positions = _joint_positions.copy()  # avoid mutation during FK
+    temp_joint_positions["left_ear_rotate"] = temp_joint_positions["left_ear_rotate"] - 40*math.pi/180
+    temp_joint_positions["right_ear_rotate"] = temp_joint_positions["right_ear_rotate"] + 40*math.pi/180
+    T = compute_link_transforms(temp_joint_positions)
     eye = np.eye(4, dtype=np.float64)
 
     for link_name in _topo_order:

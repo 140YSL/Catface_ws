@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+import os
+import glob
 
 package_name = 'au_player'
 
@@ -10,6 +12,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'config'),
+                    glob.glob(os.path.join('config', '*.npy'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,6 +28,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'keyboard_ctrl = au_player.keyboard_ctrl:main',
         ],
     },
 )

@@ -11,8 +11,11 @@
 
     p: 切换角度变化方向（正/反）
 
-注意：需要在普通终端中直接运行（ros2 run 或 python3 均可），不支持 ssh 之外的
-非 TTY 环境；按 Ctrl+C 退出并恢复终端设置。
+每个关节的目标角度限幅直接从 MJCF 中该执行器的 ctrlrange 读取，
+不再使用统一限幅。
+
+注意：需要在普通终端中直接运行（ros2 run 或 python3 均可），不支持非 TTY
+环境；按 Ctrl+C 退出并恢复终端设置。
 """
 
 import select
@@ -32,7 +35,7 @@ from ament_index_python.packages import get_package_share_directory
 
 # ==================== 宏参数区（可按需修改） ====================
 
-# MJCF 模型路径，用于解析执行器索引
+# MJCF 模型路径，用于解析执行器索引与各自的 ctrlrange 限幅
 XML_PATH = os.path.join(
         get_package_share_directory('robot_description'),
         'urdf',
@@ -44,10 +47,7 @@ CTRL_TOPIC = "/mujoco_ctrl"
 PUBLISH_RATE_HZ = 50.0
 
 # 角度变化速度（rad/s）：按住某键时，对应关节目标角度每秒变化量
-ANGLE_VELOCITY = 0.3
-
-# 目标角度限幅（rad），防止按键过久导致角度发散
-ANGLE_LIMIT = 1.0
+ANGLE_VELOCITY = 0.6
 
 # 按键 → 执行器名 映射表
 KEY_ACTUATOR_MAP = {
@@ -79,12 +79,15 @@ class KeyboardTeleopNode(Node):
 
         self.publish_rate_hz = max(1.0, float(PUBLISH_RATE_HZ))
         self.angle_velocity = float(ANGLE_VELOCITY)
-        self.angle_limit = abs(float(ANGLE_LIMIT))
 
         self.get_logger().info("正在加载 MJCF 以解析执行器索引 ...")
         self.model = mujoco.MjModel.from_xml_path(str(XML_PATH))
         self.nu = int(self.model.nu)
         self.get_logger().info(f"执行器数量: {self.nu}")
+
+        # 每个执行器各自的 ctrl 限幅（nu × 2：[min, max]），
+        # 直接来自 XML 中 <actuator ... ctrlrange="min max"/>
+        self.ctrl_range = np.array(self.model.actuator_ctrlrange)  # (nu, 2)
 
         # 预解析 按键字符 → 执行器索引，跳过未找到的执行器
         self.key_to_aidx = {}
@@ -98,6 +101,10 @@ class KeyboardTeleopNode(Node):
                 )
                 continue
             self.key_to_aidx[key] = idx
+            lo, hi = self.ctrl_range[idx]
+            self.get_logger().info(
+                f"按键 '{key}' → {name} (idx={idx}), ctrlrange=[{lo:.3f}, {hi:.3f}]"
+            )
 
         # 当前被按下的按键集合
         self.pressed_keys = set()
@@ -121,7 +128,7 @@ class KeyboardTeleopNode(Node):
 
         self.get_logger().info(
             f"键盘遥测节点启动，发布到 {CTRL_TOPIC} @ {self.publish_rate_hz:.1f} Hz，"
-            f"速度 {self.angle_velocity} rad/s，限幅 ±{self.angle_limit} rad"
+            f"速度 {self.angle_velocity} rad/s，限幅取自各执行器 ctrlrange"
         )
         self.get_logger().info(
             "按键映射: " + ", ".join(
@@ -172,10 +179,10 @@ class KeyboardTeleopNode(Node):
 
         for key in self.pressed_keys:
             idx = self.key_to_aidx[key]
+            # 使用该执行器自身的 ctrlrange 上下限进行裁剪
+            lo, hi = self.ctrl_range[idx]
             self.current_ctrl[idx] = np.clip(
-                self.current_ctrl[idx] + delta,
-                -self.angle_limit,
-                self.angle_limit,
+                self.current_ctrl[idx] + delta, lo, hi
             )
 
         msg = Float64MultiArray()

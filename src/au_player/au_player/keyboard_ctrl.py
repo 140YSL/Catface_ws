@@ -10,6 +10,7 @@
     f: right_ear_rotate        g: right_ear
 
     p: 切换角度变化方向（正/反）
+    m: 重置所有关节目标角度为 0（一次性触发）
 
 每个关节的目标角度限幅直接从 MJCF 中该执行器的 ctrlrange 读取，
 不再使用统一限幅。
@@ -70,6 +71,9 @@ KEY_ACTUATOR_MAP = {
 # 反向切换按键
 DIRECTION_TOGGLE_KEY = "p"
 
+# 重置按键：按下后所有关节目标角度归零
+RESET_KEY = "m"
+
 # =============================================================
 
 
@@ -110,6 +114,8 @@ class KeyboardTeleopNode(Node):
         self.pressed_keys = set()
         # 角度变化方向：+1 正向 / -1 反向，按 p 切换
         self.direction = 1.0
+        # 重置请求标志：本周期内按下 m 则置 True，tick 中处理后置 False
+        self.reset_requested = False
 
         # 当前指令（与演示节点中 current_ctrl 的角色相同）
         self.current_ctrl = np.zeros(self.nu)
@@ -133,7 +139,7 @@ class KeyboardTeleopNode(Node):
         self.get_logger().info(
             "按键映射: " + ", ".join(
                 f"{k}={v}" for k, v in KEY_ACTUATOR_MAP.items()
-            ) + f"；按 {DIRECTION_TOGGLE_KEY} 切换方向，Ctrl+C 退出"
+            ) + f"；按 {DIRECTION_TOGGLE_KEY} 切换方向，按 {RESET_KEY} 重置，Ctrl+C 退出"
         )
 
     # ---------------- 键盘读取 ----------------
@@ -160,6 +166,10 @@ class KeyboardTeleopNode(Node):
                 self.get_logger().info(
                     f"方向切换：{'正向 +' if self.direction > 0 else '反向 -'}"
                 )
+            elif ch == RESET_KEY:
+                # 记录重置请求，交由 tick 统一处理，
+                # 避免在键盘回调中直接清零后又按键叠加
+                self.reset_requested = True
             elif ch in ("\x03",):  # Ctrl+C
                 raise KeyboardInterrupt
             # 松开检测：cbreak 模式下普通按键不产生释放事件，
@@ -173,6 +183,13 @@ class KeyboardTeleopNode(Node):
         # 持续按住时终端会重复发送该键，从而保持集合非空。
         self.pressed_keys.clear()
         self.poll_keyboard()
+
+        # 优先处理重置：所有关节目标角度归零，并清空本周期按键
+        if self.reset_requested:
+            self.current_ctrl[:] = 0.0
+            self.reset_requested = False
+            self.pressed_keys.clear()
+            self.get_logger().info("已重置所有关节目标角度为 0")
 
         dt = 1.0 / self.publish_rate_hz
         delta = self.direction * self.angle_velocity * dt

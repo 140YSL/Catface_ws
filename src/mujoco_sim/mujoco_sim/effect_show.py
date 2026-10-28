@@ -7,6 +7,20 @@
 - 动作2: 眼部皮肤（top 反相 → 眨眼）(3.0 rad/s)
 - 动作3: 颈部俯仰 (1.0 rad/s)
 - 每组持续 5s，组间 0.5s 淡入淡出，循环播放
+    0: neck_pitch
+    1: neck_yaw
+    2: Head
+    3: Jaw
+    4: left_upper_palate
+    5: right_upper_palate
+    6: left_eye_bottom_skin
+    7: left_eye_upper_skin
+    8: right_eye_bottom_skin
+    9: right_eye_upper_skin
+    10: left_ear_rotate
+    11: left_ear
+    12: right_ear_rotate
+    13: right_ear
 """
 
 from pathlib import Path

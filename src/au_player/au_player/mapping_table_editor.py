@@ -8,6 +8,7 @@ AU2Joint 编辑器
 - 通过 GUI 表格选择 AU 和强度
 - 从 ROS2 话题 /joint_state_blender 读取关节角度
 - 保存到指定的 (AU, 强度) 位置
+- 播放功能: 将选中的关节角度以 Float64MultiArray 消息发布到 /mujoco_ctrl
 
 使用方法:
     python au2joint_editor.py
@@ -33,12 +34,13 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QHeaderView,
 )
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QColor, QBrush, QFont
 
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Float64MultiArray
 
 # ============================================
 # 路径配置
@@ -72,17 +74,17 @@ AU_NAMES = [
 
 # AU 补充说明 (与 AU_NAMES 按顺序一一对应)
 AU_DESCRIPTION = [
-    "左眼睑下垂",
-    "右眼睑下垂",
-    "挑眉",
-    "嘴唇皱起",
-    "下颌下落",
-    "左眉内侧上扬",
-    "左眉外侧上扬",
-    "左眉降低",
-    "右眉内侧上扬",
-    "右眉外侧上扬",
-    "右眉降低",
+    "左眼闭眼",
+    "右眼闭眼",
+    "皱鼻+上唇提升",
+    "唇部前撅",
+    "下颌下垂",
+    "左耳向前",
+    "左耳旋转",
+    "左耳向后",
+    "右耳向前",
+    "右耳旋转",
+    "右耳向后",
 ]
 
 # AU 数量
@@ -102,6 +104,37 @@ INTENSITY_COUNT = len(INTENSITY_LEVELS)
 # ============================================
 # 关节角度列表长度
 JOINT_ANGLE_COUNT = 14
+
+# 控制话题关节顺序 (与 /mujoco_ctrl 的 Float64MultiArray 索引一一对应)
+# 数据数组 self.data[..., i] 中的第 i 个角度即对应下表中的第 i 个关节
+JOINT_NAMES = [
+    "neck_pitch",              # 0
+    "neck_yaw",                # 1
+    "Head",                    # 2
+    "Jaw",                     # 3
+    "left_upper_palate",       # 4
+    "right_upper_palate",      # 5
+    "left_eye_bottom_skin",    # 6
+    "left_eye_upper_skin",     # 7
+    "right_eye_bottom_skin",   # 8
+    "right_eye_upper_skin",    # 9
+    "left_ear_rotate",         # 10
+    "left_ear",                # 11
+    "right_ear_rotate",        # 12
+    "right_ear",               # 13
+]
+
+# ============================================
+# 控制话题 (播放) 配置
+# ============================================
+# 控制话题名称 (与文件二中的 ctrl_topic 一致)
+CTRL_TOPIC = "/mujoco_ctrl"
+
+# 播放发布频率 (Hz)，与文件二中的 publish_rate_hz 一致
+PLAY_PUBLISH_HZ = 50.0
+
+# 单次播放持续时间 (秒)
+PLAY_DURATION_S = 2.0
 
 # ============================================
 # GUI 配置
@@ -153,6 +186,15 @@ class AU2JointEditor(QMainWindow):
         # ROS2 节点和线程
         self.ros_node = None
         self.ros_thread = None
+
+        # ROS2 控制话题发布者 (/mujoco_ctrl)
+        self.ctrl_pub = None
+
+        # 播放相关
+        self.play_timer = None
+        self.play_angles = None
+        self.play_frame_count = 0
+        self.play_total_frames = 0
 
         self.init_ui()
         self.init_data()
@@ -326,7 +368,7 @@ class AU2JointEditor(QMainWindow):
             self.save_data()
 
     def init_ros(self):
-        """初始化 ROS2 节点和订阅者"""
+        """初始化 ROS2 节点、订阅者和控制话题发布者"""
         try:
             rclpy.init()
             self.ros_node = rclpy.create_node("au2joint_editor")
@@ -340,6 +382,14 @@ class AU2JointEditor(QMainWindow):
                 10,
             )
             self._log_info("已订阅话题: /joint_state_blender")
+
+            # 创建控制话题发布者 (/mujoco_ctrl)
+            self.ctrl_pub = self.ros_node.create_publisher(
+                Float64MultiArray,
+                CTRL_TOPIC,
+                10,
+            )
+            self._log_info(f"已创建控制话题发布者: {CTRL_TOPIC}")
 
             # 启动 ROS2 监听线程
             self.ros_thread = ROS2ListenerThread(self.ros_node)
@@ -501,9 +551,109 @@ class AU2JointEditor(QMainWindow):
         )
 
     def on_play_clicked(self):
-        """播放按钮点击事件 - 暂时不做处理"""
-        # TODO: 实现播放功能
-        pass
+        """播放按钮点击事件
+
+        将当前选中 (AU, 强度) 位置存储的关节角度以 Float64MultiArray
+        消息的方式发布到控制话题 /mujoco_ctrl。
+
+        数据数组中第 i 个角度对应 JOINT_NAMES 中第 i 个关节：
+            0: neck_pitch, 1: neck_yaw, 2: Head, 3: Jaw,
+            4: left_upper_palate, 5: right_upper_palate,
+            6: left_eye_bottom_skin, 7: left_eye_upper_skin,
+            8: right_eye_bottom_skin, 9: right_eye_upper_skin,
+            10: left_ear_rotate, 11: left_ear,
+            12: right_ear_rotate, 13: right_ear
+
+        发布方式与文件二一致: 50 Hz 连续发布 PLAY_DURATION_S 秒，
+        使仿真端保持该组关节角度后再停止。
+        """
+        if self.selected_au_idx < 0 or self.selected_intensity_idx < 0:
+            QMessageBox.warning(self, "警告", "请先选择一个单元格")
+            return
+
+        if self.ctrl_pub is None:
+            QMessageBox.warning(self, "警告", f"控制话题发布者未创建 ({CTRL_TOPIC})")
+            return
+
+        # 取出当前选中的关节角度 (长度固定为 JOINT_ANGLE_COUNT)
+        angles = np.asarray(
+            self.data[self.selected_au_idx, self.selected_intensity_idx],
+            dtype=np.float64,
+        )
+
+        # 检查该位置是否已有数据
+        if np.allclose(angles, DEFAULT_ANGLE_VALUE):
+            QMessageBox.warning(self, "警告", "该位置暂无数据，请先保存关节角度")
+            return
+
+        # 如果正在播放，先停止上一次播放
+        self._stop_play()
+
+        au_name = AU_NAMES[self.selected_au_idx]
+        intensity = INTENSITY_LEVELS[self.selected_intensity_idx]
+
+        # 记录要发布的角度和总帧数
+        self.play_angles = angles.tolist()
+        self.play_total_frames = int(PLAY_DURATION_S * PLAY_PUBLISH_HZ)
+        self.play_frame_count = 0
+
+        self._log_info(
+            f"开始播放: AU={au_name}, 强度={intensity}, "
+            f"发布到 {CTRL_TOPIC} @ {PLAY_PUBLISH_HZ:.1f} Hz, "
+            f"持续 {PLAY_DURATION_S:.1f} s"
+        )
+        self.status_label.setText(
+            f"播放中: AU={au_name}, 强度={intensity} ..."
+        )
+
+        # 播放期间禁用播放按钮，防止重复触发
+        self.play_button.setEnabled(False)
+
+        # 使用 QTimer 以固定频率发布
+        self.play_timer = QTimer(self)
+        self.play_timer.setInterval(int(1000 / PLAY_PUBLISH_HZ))
+        self.play_timer.timeout.connect(self.publish_play_frame)
+        self.play_timer.start()
+
+    def publish_play_frame(self):
+        """QTimer 槽函数: 发布一帧控制消息"""
+        if self.ctrl_pub is None or self.play_angles is None:
+            self._stop_play()
+            return
+
+        # 组装 Float64MultiArray 消息 (与文件二一致)
+        msg = Float64MultiArray()
+        msg.data = self.play_angles
+        self.ctrl_pub.publish(msg)
+
+        self.play_frame_count += 1
+
+        # 达到播放时长后自动停止
+        if self.play_frame_count >= self.play_total_frames:
+            au_name = AU_NAMES[self.selected_au_idx]
+            intensity = INTENSITY_LEVELS[self.selected_intensity_idx]
+            self._log_info(
+                f"播放结束: AU={au_name}, 强度={intensity}, "
+                f"共发送 {self.play_frame_count} 帧"
+            )
+            self.status_label.setText(
+                f"播放完成: AU={au_name}, 强度={intensity}"
+            )
+            self._stop_play()
+
+    def _stop_play(self):
+        """停止播放并恢复按钮状态"""
+        if self.play_timer is not None:
+            self.play_timer.stop()
+            self.play_timer = None
+
+        self.play_angles = None
+        self.play_frame_count = 0
+        self.play_total_frames = 0
+
+        # 恢复播放按钮 (前提是已选中有效单元格)
+        if self.selected_au_idx >= 0 and self.selected_intensity_idx >= 0:
+            self.play_button.setEnabled(True)
 
     def save_data(self):
         """保存数据到 .npy 文件"""
@@ -521,6 +671,9 @@ class AU2JointEditor(QMainWindow):
 
     def closeEvent(self, event):
         """窗口关闭事件"""
+        # 停止播放
+        self._stop_play()
+
         # 保存数据
         self.save_data()
 

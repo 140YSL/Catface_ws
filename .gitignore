@@ -2,5 +2,6 @@ build/
 install/
 log/
 Worklog/
+cat_video/
 *.zip
 *.onnx

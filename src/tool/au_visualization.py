@@ -10,6 +10,9 @@ plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP']
 plt.rcParams['axes.unicode_minus'] = False   # 正常显示负号
 
 NPZ_PATH = (Path(__file__).resolve().parent / "../../cat_video/3.npz").resolve()
+SMOOTH_NPZ_PATH = NPZ_PATH.parent / f"{NPZ_PATH.stem}_smooth.npz"
+
+SMOOTH_SAMPLE_RATE = 120  # 平滑曲线每秒采样点数
 
 SMOOTH_METHOD = "constrained"  # 可选: "pchip" / "chaikin" / "gaussian" / "constrained"
 
@@ -103,6 +106,27 @@ SMOOTH_FUNCS = {
 }
 
 
+def make_smooth_x(timestamps):
+    count = max(int(timestamps.max() - timestamps.min()), 1) * SMOOTH_SAMPLE_RATE
+    return np.linspace(timestamps.min(), timestamps.max(), count)
+
+
+def save_smoothed_npz(timestamps, au_values, smooth_x):
+    smooth_func = SMOOTH_FUNCS[SMOOTH_METHOD]
+    smoothed_values = {}
+    for au_name, values in au_values.items():
+        if len(timestamps) >= 4:
+            smoothed_values[au_name] = smooth_func(timestamps, values, smooth_x)
+        else:
+            smoothed_values[au_name] = np.clip(np.interp(smooth_x, timestamps, values), 0, 5)
+    np.savez(
+        SMOOTH_NPZ_PATH,
+        time=smooth_x,
+        **smoothed_values,
+    )
+    print(f"saved: {SMOOTH_NPZ_PATH}")
+
+
 def plot_groups(timestamps, au_values):
     fig, axes = plt.subplots(
         len(AU_GROUPS), 1, figsize=(12, 4 * len(AU_GROUPS)), sharex=True
@@ -113,7 +137,8 @@ def plot_groups(timestamps, au_values):
             values = au_values[au_name]
             ax.scatter(timestamps, values, s=12, alpha=0.6)
             if len(timestamps) >= 4:
-                smooth_x = np.linspace(timestamps.min(), timestamps.max(), 500)
+                smooth_x = make_smooth_x(timestamps)
+                # print("timestamps:", timestamps.min(), timestamps.max())
                 smooth_y = SMOOTH_FUNCS[SMOOTH_METHOD](timestamps, values, smooth_x)
                 ax.plot(smooth_x, smooth_y, label=f"{au_description} ")
         ax.set_ylabel("AU Intensity")
@@ -131,6 +156,7 @@ def plot_groups(timestamps, au_values):
 
 def main():
     timestamps, au_values = load_au_data(NPZ_PATH)
+    save_smoothed_npz(timestamps, au_values, make_smooth_x(timestamps))
     plot_groups(timestamps, au_values)
     plt.show()
 

@@ -181,18 +181,19 @@ class AUTaggerWindow(QMainWindow):
             first_column = (index % 2) * 3
             description_label = QLabel(description)
             description_label.setMinimumWidth(130)
+            # 滑块内部单位为 0.2 强度，0..25 对应强度 0.0..5.0
             slider = QSlider(Qt.Horizontal)
-            slider.setRange(0, 5)
+            slider.setRange(0, 25)
             slider.setSingleStep(1)
-            slider.setPageStep(1)
-            slider.setTickInterval(1)
+            slider.setPageStep(5)
+            slider.setTickInterval(5)
             slider.setTickPosition(QSlider.TicksBelow)
             slider.setValue(0)
-            value_label = QLabel("0")
+            value_label = QLabel("0.0")
             value_label.setAlignment(Qt.AlignCenter)
-            value_label.setMinimumWidth(24)
+            value_label.setMinimumWidth(32)
             slider.valueChanged.connect(
-                lambda value, label=value_label: label.setText(str(value))
+                lambda value, label=value_label: label.setText(f"{value / 5:.1f}")
             )
             slider_layout.addWidget(description_label, row, first_column)
             slider_layout.addWidget(slider, row, first_column + 1)
@@ -354,11 +355,11 @@ class AUTaggerWindow(QMainWindow):
         record = None
         if self.annotation_store is not None:
             record = self.annotation_store.get_latest_before(self.current_frame)
-        values = np.zeros(len(AU_DESCRIPTION), dtype=np.uint8)
+        values = np.zeros(len(AU_DESCRIPTION), dtype=np.float64)
         if record is not None:
             values = record[1]
         for slider, value in zip(self.au_sliders, values):
-            slider.setValue(int(value))
+            slider.setValue(int(round(float(value) * 5)))
 
     def seek_to_frame(self, frame_index):
         self.pause_playback()
@@ -403,7 +404,7 @@ class AUTaggerWindow(QMainWindow):
             return
 
         intensities = np.asarray(
-            [slider.value() for slider in self.au_sliders], dtype=np.uint8
+            [slider.value() / 5 for slider in self.au_sliders], dtype=np.float64
         )
         timestamp = self.current_frame / self.fps
         try:

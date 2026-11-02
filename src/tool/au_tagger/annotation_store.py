@@ -77,15 +77,18 @@ class AnnotationStore:
             raise ValueError("NPZ 中存在重复帧索引")
         if not np.all(np.isfinite(timestamps)) or np.any(timestamps < 0):
             raise ValueError("NPZ 中存在无效时间戳")
-        if not np.issubdtype(intensities.dtype, np.integer):
-            raise ValueError("NPZ 中 AU 强度必须为整数")
+        if not np.issubdtype(intensities.dtype, np.number):
+            raise ValueError("NPZ 中 AU 强度必须为数值")
+        intensities = intensities.astype(np.float64)
         if np.any(intensities < 0) or np.any(intensities > 5):
             raise ValueError("NPZ 中 AU 强度必须位于 0 到 5 之间")
+        if not np.allclose(intensities * 5, np.round(intensities * 5), atol=1e-6):
+            raise ValueError("NPZ 中 AU 强度必须为 0.2 的整数倍")
 
         records = {
             int(frame_index): (
                 float(timestamp),
-                intensity_row.astype(np.uint8, copy=True),
+                intensity_row.astype(np.float64, copy=True),
             )
             for frame_index, timestamp, intensity_row in zip(
                 frame_indices, timestamps, intensities
@@ -109,11 +112,14 @@ class AnnotationStore:
         return timestamp, intensities.copy()
 
     def set(self, frame_index, timestamp, intensities):
-        values = np.asarray(intensities, dtype=np.uint8)
+        values = np.asarray(intensities, dtype=np.float64)
         if values.shape != (len(AU_DESCRIPTION),):
             raise ValueError(f"需要 {len(AU_DESCRIPTION)} 个 AU 强度值")
-        if np.any(values > 5):
+        if np.any(values < 0) or np.any(values > 5):
             raise ValueError("AU 强度必须位于 0 到 5 之间")
+        if not np.allclose(values * 5, np.round(values * 5), atol=1e-6):
+            raise ValueError("AU 强度必须为 0.2 的整数倍")
+        values = np.round(values * 5) / 5
         if frame_index < 0 or not np.isfinite(timestamp) or timestamp < 0:
             raise ValueError("帧索引和时间戳必须为非负数")
 
@@ -127,7 +133,7 @@ class AnnotationStore:
         )
         intensities = np.asarray(
             [self._records[index][1] for index in frame_indices],
-            dtype=np.uint8,
+            dtype=np.float64,
         ).reshape(-1, len(AU_DESCRIPTION))
 
         temporary_path = None

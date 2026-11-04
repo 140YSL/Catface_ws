@@ -3,9 +3,26 @@
 """读取指定路径的 npy 文件（三维数组），打印，对特定行处理后重新写回。"""
 
 import numpy as np
+"""
+    /mujoco_ctrl 各位含义
+    0: neck_pitch
+    1: neck_yaw
+    2: Head
+    3: Jaw
+    4: left_upper_palate
+    5: right_upper_palate
+    6: left_eye_bottom_skin
+    7: left_eye_upper_skin
+    8: right_eye_bottom_skin
+    9: right_eye_upper_skin
+    10: left_ear_rotate
+    11: left_ear
+    12: right_ear_rotate
+    13: right_ear
+"""
 
 # ==================== 参数区 ====================
-NPY_PATH = "../config/au2joint copy 2.npy"   # 改成你的 npy 文件路径
+NPY_PATH = "../config/au2joint.npy"   # 改成你的 npy 文件路径
 # ===============================================
 
 AU_NAMES = [
@@ -74,8 +91,8 @@ def process_total(arr: np.ndarray) -> np.ndarray:
     arr[7, :, : ] = process_limit(arr[7, :, : ], 2)
 
     # 左右对称
+    arr[2, :, : ] = process_symmertrization(arr[2, :, : ])
     arr[3, :, : ] = process_symmertrization(arr[3, :, : ])
-    arr[4, :, : ] = process_symmertrization(arr[4, :, : ])
     arr[1, :, : ] = process_symmertrization(arr[0, :, : ])
     arr[8, :, : ] = process_symmertrization(arr[5, :, : ])
     arr[9, :, : ] = process_symmertrization(arr[6, :, : ])

@@ -63,6 +63,7 @@ class AUTaggerWindow(QMainWindow):
         self.capture = None
         self.video_path = None
         self.annotation_store = None
+        self.intensity_array = None
         self.current_frame = -1
         self.frame_count = 0
         self.fps = 25.0
@@ -172,13 +173,15 @@ class AUTaggerWindow(QMainWindow):
         slider_widget = QWidget()
         slider_layout = QGridLayout(slider_widget)
         slider_layout.setColumnStretch(1, 1)
-        slider_layout.setColumnStretch(4, 1)
+        slider_layout.setColumnStretch(6, 1)
         self.au_sliders = []
         self.au_value_labels = []
+        self.au_insert_buttons = []
+        self.au_modify_buttons = []
 
         for index, description in enumerate(AU_DESCRIPTION):
             row = index // 2
-            first_column = (index % 2) * 3
+            first_column = (index % 2) * 5
             description_label = QLabel(description)
             description_label.setMinimumWidth(130)
             # 滑块内部单位为 0.2 强度，0..25 对应强度 0.0..5.0
@@ -195,20 +198,32 @@ class AUTaggerWindow(QMainWindow):
             slider.valueChanged.connect(
                 lambda value, label=value_label: label.setText(f"{value / 5:.1f}")
             )
+            insert_button = QPushButton("插帧")
+            insert_button.clicked.connect(
+                lambda checked=False, au_index=index: self.insert_au(au_index)
+            )
+            modify_button = QPushButton("修改")
+            modify_button.clicked.connect(
+                lambda checked=False, au_index=index: self.modify_au(au_index)
+            )
             slider_layout.addWidget(description_label, row, first_column)
             slider_layout.addWidget(slider, row, first_column + 1)
             slider_layout.addWidget(value_label, row, first_column + 2)
+            slider_layout.addWidget(insert_button, row, first_column + 3)
+            slider_layout.addWidget(modify_button, row, first_column + 4)
             self.au_sliders.append(slider)
             self.au_value_labels.append(value_label)
+            self.au_insert_buttons.append(insert_button)
+            self.au_modify_buttons.append(modify_button)
 
         scroll_area.setWidget(slider_widget)
         panel_layout.addWidget(scroll_area, 1)
 
         action_layout = QVBoxLayout()
-        self.insert_button = QPushButton("插帧")
-        self.insert_button.setMinimumSize(100, 48)
-        self.insert_button.clicked.connect(self.insert_annotation)
-        action_layout.addWidget(self.insert_button)
+        self.save_button = QPushButton("保存")
+        self.save_button.setMinimumSize(100, 48)
+        self.save_button.clicked.connect(self.save_annotations)
+        action_layout.addWidget(self.save_button)
 
         self.annotation_status_label = QLabel("未加载标注文件")
         self.annotation_status_label.setWordWrap(True)
@@ -277,34 +292,46 @@ class AUTaggerWindow(QMainWindow):
 
         self.video_name_label.setText(self.video_path.name)
         self.position_slider.setRange(0, self.frame_count - 1)
-        self.set_video_controls_enabled(True)
-        self.insert_button.setEnabled(False)
 
+        self.intensity_array = np.zeros(
+            (self.frame_count, len(AU_DESCRIPTION)), dtype=np.float64
+        )
         annotation_path = self.video_path.with_suffix(".npz")
         try:
             self.annotation_store = AnnotationStore.load(annotation_path)
         except (OSError, ValueError) as error:
             self.annotation_store = None
-            self.annotation_status_label.setText("标注文件读取失败，插帧已禁用")
+            self.set_video_controls_enabled(True)
+            self.set_annotation_controls_enabled(False)
+            self.annotation_status_label.setText("标注文件读取失败，标注已禁用")
             QMessageBox.critical(
                 self,
                 "标注文件错误",
                 f"无法读取 {annotation_path}:\n{error}\n\n"
-                "为避免覆盖原文件，当前视频已禁用插帧。",
+                "为避免覆盖原文件，当前视频已禁用标注。",
             )
         else:
-            self.insert_button.setEnabled(True)
+            for frame_index in range(self.frame_count):
+                record = self.annotation_store.get_latest_before(frame_index)
+                if record is not None:
+                    self.intensity_array[frame_index] = record[1]
+            self.set_video_controls_enabled(True)
             self.update_annotation_status()
 
         if not self.display_frame(0):
             QMessageBox.critical(self, "读取失败", "无法读取视频的第一帧")
 
+    def set_annotation_controls_enabled(self, enabled):
+        self.save_button.setEnabled(enabled)
+        for slider in self.au_sliders:
+            slider.setEnabled(enabled)
+        for button in self.au_insert_buttons + self.au_modify_buttons:
+            button.setEnabled(enabled)
+
     def set_video_controls_enabled(self, enabled):
         self.play_button.setEnabled(enabled)
         self.position_slider.setEnabled(enabled)
-        self.insert_button.setEnabled(enabled)
-        for slider in self.au_sliders:
-            slider.setEnabled(enabled)
+        self.set_annotation_controls_enabled(enabled)
 
     def display_frame(self, frame_index):
         if self.capture is None or self.frame_count == 0:
@@ -352,12 +379,11 @@ class AUTaggerWindow(QMainWindow):
         )
 
     def restore_annotation(self):
-        record = None
-        if self.annotation_store is not None:
-            record = self.annotation_store.get_latest_before(self.current_frame)
         values = np.zeros(len(AU_DESCRIPTION), dtype=np.float64)
-        if record is not None:
-            values = record[1]
+        if self.intensity_array is not None and 0 <= self.current_frame < len(
+            self.intensity_array
+        ):
+            values = self.intensity_array[self.current_frame]
         for slider, value in zip(self.au_sliders, values):
             slider.setValue(int(round(float(value) * 5)))
 
@@ -395,30 +421,66 @@ class AUTaggerWindow(QMainWindow):
         self.play_timer.stop()
         self.play_button.setText("播放")
 
-    def insert_annotation(self):
+    def insert_au(self, au_index):
         if (
             self.capture is None
-            or self.annotation_store is None
+            or self.intensity_array is None
             or self.current_frame < 0
         ):
             return
 
-        intensities = np.asarray(
-            [slider.value() / 5 for slider in self.au_sliders], dtype=np.float64
+        value = self.au_sliders[au_index].value() / 5
+        self.intensity_array[self.current_frame:, au_index] = value
+        self.annotation_status_label.setText(
+            f"已插帧: {AU_DESCRIPTION[au_index]}\n"
+            f"第 {self.current_frame + 1} 帧起 = {value:.1f}"
         )
-        timestamp = self.current_frame / self.fps
+
+    def modify_au(self, au_index):
+        if (
+            self.capture is None
+            or self.intensity_array is None
+            or self.current_frame < 0
+        ):
+            return
+
+        value = self.au_sliders[au_index].value() / 5
+        self.intensity_array[self.current_frame, au_index] = value
+        self.annotation_status_label.setText(
+            f"已修改: {AU_DESCRIPTION[au_index]}\n"
+            f"第 {self.current_frame + 1} 帧 = {value:.1f}"
+        )
+
+    def save_annotations(self):
+        if (
+            self.capture is None
+            or self.intensity_array is None
+            or self.video_path is None
+        ):
+            return
+
+        records = {
+            frame_index: (
+                frame_index / self.fps,
+                self.intensity_array[frame_index].copy(),
+            )
+            for frame_index in range(self.frame_count)
+        }
+        annotation_path = self.video_path.with_suffix(".npz")
         try:
-            self.annotation_store.set(self.current_frame, timestamp, intensities)
-            self.annotation_store.save()
+            AnnotationStore(annotation_path, records).save()
         except (OSError, ValueError) as error:
             QMessageBox.critical(self, "保存失败", f"无法保存标注:\n{error}")
             return
 
+        try:
+            self.annotation_store = AnnotationStore.load(annotation_path)
+        except (OSError, ValueError):
+            self.annotation_store = None
         self.update_annotation_status()
         self.annotation_status_label.setText(
-            f"已保存第 {self.current_frame + 1} 帧\n"
-            f"时间: {timestamp:.6f} 秒\n"
-            f"共 {len(self.annotation_store)} 个标注帧"
+            f"已保存到 {annotation_path.name}\n"
+            f"共 {self.frame_count} 帧"
         )
 
     def update_annotation_status(self):

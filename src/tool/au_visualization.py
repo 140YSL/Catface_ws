@@ -9,7 +9,7 @@ from scipy.optimize import minimize
 plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP']
 plt.rcParams['axes.unicode_minus'] = False   # 正常显示负号
 
-NPZ_PATH = (Path(__file__).resolve().parent / "../../cat_video/3.npz").resolve()
+NPZ_PATH = (Path(__file__).resolve().parent / "../../cat_video/39.npz").resolve()
 SMOOTH_NPZ_PATH = NPZ_PATH.parent / f"{NPZ_PATH.stem}_smooth.npz"
 
 SMOOTH_SAMPLE_RATE = 120  # 平滑曲线每秒采样点数
@@ -80,8 +80,8 @@ def smooth_constrained(timestamps, values, smooth_x, smooth_weight=10.0):
     seg = np.clip(np.searchsorted(timestamps, grid) - 1, 0, len(timestamps) - 2)
     seg_a = np.asarray(values, dtype=float)[seg]
     seg_b = np.asarray(values, dtype=float)[seg + 1]
-    lower = np.clip(np.minimum(seg_a, seg_b) - 0.4, 0, 5)
-    upper = np.clip(np.maximum(seg_a, seg_b) + 0.4, 0, 5)
+    lower = np.clip(np.minimum(seg_a, seg_b) - 0.2, 0, 5)
+    upper = np.clip(np.maximum(seg_a, seg_b) + 0.2, 0, 5)
 
     def objective(y):
         fidelity = np.sum((y - init) ** 2)
@@ -107,7 +107,7 @@ SMOOTH_FUNCS = {
 
 
 def make_smooth_x(timestamps):
-    count = max(int(timestamps.max() - timestamps.min()), 1) * SMOOTH_SAMPLE_RATE
+    count = max(int((timestamps.max() - timestamps.min())* SMOOTH_SAMPLE_RATE), 100) 
     return np.linspace(timestamps.min(), timestamps.max(), count)
 
 

@@ -13,7 +13,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'config'),
-                    glob.glob(os.path.join('config', '*.npy'))),
+                    glob.glob(os.path.join('config', '*.npy')) +
+                    glob.glob(os.path.join('config', '*.npz'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -29,6 +30,7 @@ setup(
     entry_points={
         'console_scripts': [
             'keyboard_ctrl = au_player.keyboard_ctrl:main',
+            'au_player = au_player.au_player:main',
         ],
     },
 )

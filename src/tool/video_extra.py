@@ -132,7 +132,7 @@ class VideoCropper:
         self.duration = 0.0
         self.width = self.height = 0
         self.current_frame = 0
-        self.frame_rgb = None
+        self.frame_bgr = None
         self.photo = None
         self.display_box = None
         self.crop = None
@@ -307,7 +307,7 @@ class VideoCropper:
         self.duration = self.frames / self.fps
         self.height, self.width = frame.shape[:2]
         self.current_frame = 0
-        self.frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        self.frame_bgr = frame
         self.crop = self.first_point = None
         self.timeline.reset(self.duration)
         self.update_range()
@@ -326,14 +326,17 @@ class VideoCropper:
 
     def render(self):
         self.redraw_job = None
-        if self.frame_rgb is None:
+        if self.frame_bgr is None:
             return
         cw, ch = max(1, self.canvas.winfo_width()), max(1, self.canvas.winfo_height())
         scale = min(cw / self.width, ch / self.height)
         dw, dh = max(1, round(self.width * scale)), max(1, round(self.height * scale))
         ox, oy = (cw - dw) / 2, (ch - dh) / 2
         self.display_box = (ox, oy, dw, dh)
-        image = Image.fromarray(self.frame_rgb).resize((dw, dh), Image.Resampling.BILINEAR)
+        # 先用 SIMD 加速的 cv2 缩放，再对小图做颜色转换，远快于 PIL 全分辨率缩放。
+        method = cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR
+        resized = cv2.resize(self.frame_bgr, (dw, dh), interpolation=method)
+        image = Image.fromarray(cv2.cvtColor(resized, cv2.COLOR_BGR2RGB))
         self.photo = ImageTk.PhotoImage(image)
         self.canvas.delete('all')
         self.canvas.create_image(ox, oy, image=self.photo, anchor='nw')
@@ -425,7 +428,7 @@ class VideoCropper:
             self.pause()
             return False
         self.current_frame = index
-        self.frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        self.frame_bgr = frame
         self.timeline.position = index / self.fps
         self.timeline.draw()
         self.render()
@@ -460,9 +463,20 @@ class VideoCropper:
             self.pause()
             return
         if target > self.current_frame:
-            if not self.show_frame(target, seek=(target != self.current_frame + 1)):
+            gap = target - self.current_frame
+            if gap > 1 and gap <= 8:
+                # Linux 下 FFmpeg 后端 seek 很慢；少量落后时顺序 grab 跳帧更快。
+                for _ in range(gap - 1):
+                    if not self.cap.grab():
+                        self.pause()
+                        return
+                gap = 1
+            if not self.show_frame(target, seek=(gap > 1)):
                 return
-        self.root.after(max(5, round(1000 / self.fps)), self.play_tick)
+        # 按下一帧的绝对时间调度，补偿渲染耗时，避免节奏漂移。
+        next_time = self.play_start + (self.current_frame + 1) / self.fps
+        delay = max(1, round((next_time - time.monotonic()) * 1000))
+        self.root.after(delay, self.play_tick)
 
     def export(self):
         if not self.video or self.exporting:

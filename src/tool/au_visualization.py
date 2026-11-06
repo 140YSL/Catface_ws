@@ -9,7 +9,7 @@ from scipy.optimize import minimize
 plt.rcParams['font.sans-serif'] = ['Noto Sans CJK JP']
 plt.rcParams['axes.unicode_minus'] = False   # 正常显示负号
 
-NPZ_PATH = (Path(__file__).resolve().parent / "../../cat_video/39.npz").resolve()
+NPZ_PATH = (Path(__file__).resolve().parent / "../../cat_video/102.npz").resolve()
 SMOOTH_NPZ_PATH = NPZ_PATH.parent / f"{NPZ_PATH.stem}_smooth.npz"
 
 SMOOTH_SAMPLE_RATE = 120  # 平滑曲线每秒采样点数

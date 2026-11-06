@@ -13,7 +13,7 @@ from std_srvs.srv import Trigger
 from scipy.interpolate import interp1d
 
 _SHARE_DIR = get_package_share_directory("au_player")
-TIME2AU_PATH = f"{_SHARE_DIR}/config/39_smooth.npz"
+TIME2AU_PATH = f"{_SHARE_DIR}/config/102_smooth.npz"
 AU2JOINT_INDEX_PATH = f"{_SHARE_DIR}/config/au2joint_smooth.npz"
 AU2JOINT_DATA_PATH = f"{_SHARE_DIR}/config/au2joint_smooth.npy"
 

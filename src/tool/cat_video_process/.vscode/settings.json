@@ -1,0 +1,4 @@
+{
+  "python.defaultInterpreterPath": "/home/ubuntu/miniconda3/envs/cat_video_process/bin/python",
+  "python.terminal.activateEnvironment": true
+}

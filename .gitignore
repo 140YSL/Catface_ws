@@ -3,6 +3,6 @@ install/
 log/
 Worklog/
 cat_video/
-src/tool/BBDown_1.6.3_20240814_linux-x64
+src/cat-landmark-portable
 *.zip
 *.onnx

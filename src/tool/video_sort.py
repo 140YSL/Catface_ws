@@ -13,7 +13,7 @@ import sys
 import threading
 import time
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
+from tkinter import filedialog, font as tkfont, messagebox, ttk
 
 import cv2
 from PIL import Image, ImageTk
@@ -22,7 +22,7 @@ EXTENSIONS = {'.mp4', '.mov', '.mkv', '.avi', '.webm', '.m4v', '.mpg', '.mpeg', 
 
 
 VIDEO_ROOT = (Path(__file__).resolve().parent / '../../cat_video').resolve()
-DEFAULT_FOLDER = VIDEO_ROOT / 'raw'
+DEFAULT_FOLDER = VIDEO_ROOT / 'final'
 ORGANIZED_FOLDER = VIDEO_ROOT / 'organized'
 CATEGORIES = (
     ('放松/满足/愉悦', 'enjoy'),
@@ -35,6 +35,31 @@ CATEGORIES = (
     ('撒娇/乞求', 'coquettishly'),
     ('困乏', 'drowsy'),
 )
+
+
+def configure_ui_fonts(root):
+    """显式使用中文无衬线字体，避免 Tk 默认字体回退到不合适的中文字形。"""
+    available = {family.casefold(): family for family in tkfont.families(root)}
+    candidates = (
+        'Noto Sans CJK SC', 'Microsoft YaHei', 'PingFang SC',
+        'WenQuanYi Micro Hei', 'Droid Sans Fallback', 'Noto Sans CJK JP',
+    )
+    family = next((available[name.casefold()] for name in candidates
+                   if name.casefold() in available), None)
+    if family is None:
+        family = tkfont.nametofont('TkDefaultFont', root=root).actual('family')
+    # 保留 Tk 从显示器读取的 DPI，字号使用点值，随 DPI 缩放。
+    # 不把整个界面或文字绘制成位图再放大。
+    for name in ('TkDefaultFont', 'TkTextFont', 'TkMenuFont', 'TkHeadingFont',
+                 'TkCaptionFont', 'TkSmallCaptionFont', 'TkIconFont', 'TkTooltipFont'):
+        tkfont.nametofont(name, root=root).configure(
+            family=family, size=12, weight='normal', slant='roman',
+        )
+    root.option_add('*Font', 'TkDefaultFont')
+    style = ttk.Style(root)
+    style.configure('.', font='TkDefaultFont')
+    style.configure('TButton', font='TkDefaultFont', padding=(8, 6))
+    style.configure('TLabel', font='TkDefaultFont')
 
 
 def next_output_path(folder, suffix='.mp4'):
@@ -114,8 +139,8 @@ class Timeline(tk.Canvas):
         self.create_line(left, 20, right, 20, fill='#a6b8d1', width=4)
         x = left + self.position / max(self.duration, 0.001) * (right - left)
         self.create_oval(x - 7, 13, x + 7, 27, fill='#2563eb', outline='white')
-        self.create_text(left, 45, text=timestamp(self.position), anchor='w', fill='#555')
-        self.create_text(right, 45, text=timestamp(self.duration), anchor='e', fill='#555')
+        self.create_text(left, 45, text=timestamp(self.position), anchor='w', fill='#555', font='TkDefaultFont')
+        self.create_text(right, 45, text=timestamp(self.duration), anchor='e', fill='#555', font='TkDefaultFont')
 
     def seek(self, event):
         if not self.enabled:
@@ -129,6 +154,7 @@ class Timeline(tk.Canvas):
 class VideoSorter:
     def __init__(self, root, initial_folder=None):
         self.root = root
+        configure_ui_fonts(root)
         self.root.title('视频预览与多选分类')
         self.root.geometry('1440x850')
         self.root.minsize(1100, 650)
@@ -175,26 +201,28 @@ class VideoSorter:
         actions.pack(fill='x')
         self.category_buttons = {}
         for index, (label, category) in enumerate(CATEGORIES):
-            button = tk.Button(actions, text=label, wraplength=95, height=2,
+            button = tk.Button(actions, text=f'{label}\n[{index + 1}]', wraplength=95, height=3,
+                               font='TkDefaultFont',
                                command=lambda value=category: self.toggle_category(value))
             button.grid(row=0, column=index, padx=2, sticky='nsew')
             actions.columnconfigure(index, weight=1, uniform='actions')
             self.category_buttons[category] = button
         self.button_bg = next(iter(self.category_buttons.values())).cget('background')
-        self.delete_button = tk.Button(actions, text='删除', height=2, command=self.toggle_delete)
+        self.delete_button = tk.Button(actions, text='删除\n[0]', height=3,
+                                       font='TkDefaultFont', command=self.toggle_delete)
         self.delete_button.grid(row=0, column=9, padx=2, sticky='nsew')
         actions.columnconfigure(9, weight=1, uniform='actions')
         ttk.Separator(actions, orient='vertical').grid(row=0, column=10, padx=10, sticky='ns')
-        self.execute_button = ttk.Button(actions, text='执行', command=self.execute)
+        self.execute_button = ttk.Button(actions, text='执行 [S]', command=self.execute)
         self.execute_button.grid(row=0, column=11, padx=2, sticky='nsew')
         actions.columnconfigure(11, weight=1, uniform='actions')
 
         body = ttk.Panedwindow(self.root, orient='horizontal')
         body.pack(fill='both', expand=True, padx=8)
-        sidebar = ttk.Frame(body, width=235)
+        sidebar = ttk.Frame(body, width=320)
         body.add(sidebar, weight=0)
         ttk.Label(sidebar, text='视频文件（单击切换）').pack(anchor='w', pady=4)
-        self.listbox = tk.Listbox(sidebar, width=30, exportselection=False)
+        self.listbox = tk.Listbox(sidebar, width=32, font='TkTextFont', exportselection=False)
         scrollbar = ttk.Scrollbar(sidebar, orient='vertical', command=self.listbox.yview)
         self.listbox.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side='right', fill='y')
@@ -266,7 +294,13 @@ class VideoSorter:
             '<Right>': lambda: self.keyboard_seek(1, by_frame=True),
             '<Control-Left>': lambda: self.keyboard_seek(-5),
             '<Control-Right>': lambda: self.keyboard_seek(5),
+            # invoke 与点击按钮一致，按钮禁用时不会触发操作。
+            '<KeyPress-0>': self.delete_button.invoke,
+            '<KeyPress-s>': self.execute_button.invoke,
+            '<KeyPress-S>': self.execute_button.invoke,
         }
+        for index, (_, category) in enumerate(CATEGORIES, start=1):
+            shortcuts[f'<KeyPress-{index}>'] = self.category_buttons[category].invoke
         for sequence, action in shortcuts.items():
             def handler(event, callback=action):
                 callback()

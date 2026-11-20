@@ -35,7 +35,7 @@ def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default="/home/ubuntu/Desktop/Catface_ws/cat_video/organized/afraid/1.mp4")
     parser.add_argument("--output", type=Path, default="/home/ubuntu/Desktop/Catface_ws/cat_video/temp/1.mp4")
-    parser.add_argument("--stride", type=int, default=5,
+    parser.add_argument("--stride", type=int, default=1,
                         help="Predict on frames 0, N, 2N, ... (default: 5)")
     parser.add_argument("--model-dir", type=Path, default=DEFAULT_MODEL_DIR)
     parser.add_argument("--bbox-model", type=Path, help="Override face-localizer .tflite")

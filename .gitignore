@@ -2,7 +2,13 @@ build/
 install/
 log/
 Worklog/
-cat_video/
+cat_video/final/
+cat_video/organized/
+cat_video/raw/
+cat_video/temp/
+cat_video/sim/landmark2au_analysis/
+cat_video/sim/simcat_video_extra_landmark/
 src/cat-landmark-portable
 *.zip
 *.onnx
+*.mkv

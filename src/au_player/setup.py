@@ -31,6 +31,8 @@ setup(
         'console_scripts': [
             'keyboard_ctrl = au_player.keyboard_ctrl:main',
             'au_player = au_player.au_player:main',
+            'au2video_player = au_player.au2video_player:main',
+            'video2picture = au_player.video2picture:main',
         ],
     },
 )
